@@ -23,81 +23,18 @@ export default ({ config, db }) => {
 
 	// perhaps expose some API metadata at the root
   api.get('/', (req, res) => {
-    let nodes = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18];
-    let chunkSize = nodes.length / 2;
-    let edges = [];
-
-    let allTradePairs = enumerateEdgesReduced(nodes,edges);
-    // let tradeGroups = createTradeGroups(allTradePairs,chunkSize);
-    // let result = shuffle(tradeGroups);
-    console.log(allTradePairs);
+    const accs = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100];
+    let randomizedAccs = shuffle(accs);
+    let result = createTradeGroups(randomizedAccs);
+    console.log(result);
     return res.json({ version });
   });
 
-  function enumerateEdgesReduced(nodes, edges) {
-    return nodes.length < 2 ? edges
-          : nodes.reduce( (acc, end, i) => (i<2 ? [] : acc).concat(
-              enumerateEdgesReduced(nodes.slice(1, i).concat(nodes.slice(i+1)),
-                             [...edges, {start:nodes[0], end}])
-            ) );
-  }
-
   /**
-   * [enumerateEdges description]
-   * @param  {[type]} nodes The nodes still to be added to our edge list.
-   * @param  {[type]} edges The current edge list. This is mutated, so always return a clone!
-   * @return {[type]}       EdgeList
+   * Fisher-Yates (aka Knuth) Shuffle.
+   * @param  {[type]} array Array of accounts.
+   * @return {[type]}       Returns an array of randomized accounts.
    */
-  function enumerateEdges(nodes, edges) {
-    if (nodes.length == 0) return [...edges]; // return copy
-    let start = nodes[0];
-    let acc = [];
-    for(let i = 1; i < nodes.length; i++) {
-      let end = nodes[i];
-      edges.push({'accOne':start, 'accTwo':end}); // don't overwrite, but push
-      let unused = nodes.slice(0);
-      unused.splice(i,1);
-      unused.splice(0,1);
-      // The spread operator will put each of the array elements as separate arguments
-      // ... so no more need for the mysterious apply:
-      acc.push(...enumerateEdges(unused, edges));
-      edges.pop(); // in practice it is always the last element to be removed
-    }
-    return acc;
-  }
-
-  function enumerateEdgesMap(nodes, edges) {
-    if (nodes.length < 2) return [...edges]; // return copy
-    let start = nodes[0];
-    let acc = [];
-    for(let i = 1; i < nodes.length; i++) {
-      let end = nodes[i];
-      edges.set(start, end); // <-- Map method to add
-      let unused = nodes.slice(0);
-      unused.splice(i,1);
-      unused.splice(0,1);
-      // The spread operator will put each of the array elements as separate arguments
-      // ... so no more need for the mysterious apply:
-      acc.push(...enumerateEdgesMap(unused, edges));
-      edges.delete(start); // <-- Map method to remove
-    }
-    return acc;
-  }
-
-  /**
-   * [createQueueGroups description]
-   * @param  {[type]} arr       The created array from enumerateEdges.
-   * @param  {[type]} chunkSize The size of each trading group.
-   * @return {[type]}           The pairs of accounts in each trade group.
-   */
-  function createTradeGroups(arr, chunkSize) {
-    var groups = [], i;
-    for (i = 0; i < arr.length; i += chunkSize) {
-      groups.push(arr.slice(i, i + chunkSize));
-    }
-    return groups;
-  }
-
   function shuffle(array) {
     var currentIndex = array.length, temporaryValue, randomIndex;
     // While there remain elements to shuffle...
@@ -111,6 +48,22 @@ export default ({ config, db }) => {
       array[randomIndex] = temporaryValue;
     }
     return array;
+  }
+
+  /**
+   * Creates groups of n chucks
+   * @param  {[type]} array Array of accounts.
+   * @return {[type]}       Array of trade groups.
+   */
+  function createTradeGroups(array) {
+    let i,j,temparray;
+    let result = [];
+    let chunk = 25;
+    for (i = 0, j = array.length; i < j; i += chunk) {
+      temparray = array.slice(i, i + chunk);
+      result.push(temparray);
+    }
+    return result;
   }
 
   /**
